@@ -12,7 +12,7 @@ function getThemeElements() {
     themeToggleBtn: document.getElementById("theme-toggle"),
     moonIcon: document.querySelector(".moon-icon"),
     sunIcon: document.querySelector(".sun-icon"),
-    body: document.body 
+    body: document.body,
   };
 }
 
@@ -24,18 +24,19 @@ function toggleThemeIcons(moonIcon, sunIcon, isDark) {
 
 function applySavedTheme() {
   // Retrieve the theme from local storage. Default is "light".
-  const savedTheme = (window.localStorage && window.localStorage.getItem("theme")) || "light";
+  const savedTheme =
+    (window.localStorage && window.localStorage.getItem("theme")) || "light";
   const { themeToggleBtn, moonIcon, sunIcon, body } = getThemeElements();
 
   if (!themeToggleBtn || !moonIcon || !sunIcon || !body) return;
 
   const isDark = savedTheme === "dark";
-  body.classList.toggle("dark-theme", isDark); 
-  toggleThemeIcons(moonIcon, sunIcon, isDark); 
+  body.classList.toggle("dark-theme", isDark);
+  toggleThemeIcons(moonIcon, sunIcon, isDark);
 }
 
 function initializeEventListeners() {
-  const { themeToggleBtn, moonIcon, sunIcon, body } = getThemeElements(); 
+  const { themeToggleBtn, moonIcon, sunIcon, body } = getThemeElements();
 
   // Attach click listener to the theme toggle button.
   if (themeToggleBtn && moonIcon && sunIcon && body) {
@@ -48,7 +49,7 @@ function initializeEventListeners() {
       } catch (e) {
         console.warn("Failed to save theme preference:", e);
       }
-      toggleThemeIcons(moonIcon, sunIcon, isDark); 
+      toggleThemeIcons(moonIcon, sunIcon, isDark);
     });
   }
 
@@ -245,13 +246,20 @@ function updatePreview() {
 
     if (description !== "" || unitPrice > 0 || quantity > 0) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${description || "-"}</td>
-        <td>${selectedCurrency}${unitPrice.toFixed(2)}</td>
-        <td>${quantity}</td>
-        <td>${selectedCurrency}${total.toFixed(2)}</td>
-      `;
+
+      const tdDesc = document.createElement("td");
+      const tdUnit = document.createElement("td");
+      const tdQty = document.createElement("td");
+      const tdTot = document.createElement("td");
+
+      tdDesc.textContent = description || "-";
+      tdUnit.textContent = `${selectedCurrency}${unitPrice.toFixed(2)}`;
+      tdQty.textContent = quantity;
+      tdTot.textContent = `${selectedCurrency}${total.toFixed(2)}`;
+
+      tr.append(tdDesc, tdUnit, tdQty, tdTot);
       previewBody.appendChild(tr);
+
       subtotal += total;
     }
   });
@@ -278,30 +286,59 @@ function updatePreview() {
 }
 
 //Handle download PDF button
-document
-  .getElementById("downloadPDF")
-  .addEventListener("click", async function () {
-    updatePreview();
+function downloadPDF() {
+  updatePreview();
 
-    const loader = document.getElementById("pdfLoader");
-    loader.style.display = "flex"; // Show loader
+  const downloadBtn = document.getElementById("downloadPDF");
+  const originalButtonContent = downloadBtn.innerHTML;
+  downloadBtn.disabled = true;
+  downloadBtn.innerHTML = `
+    <svg class="spinner" viewBox="0 0 50 50">
+      <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+    </svg>
+    Generating PDF...`;
 
-    try {
+  requestAnimationFrame(() => {
+    setTimeout(() => {
       const invoiceBox = document.getElementById("invoiceBox");
+
+      if (!invoiceBox || typeof html2pdf === "undefined") {
+        alert("PDF download functionality is not available.");
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = originalButtonContent;
+        return;
+      }
 
       const opt = {
         margin: 0.5,
         filename: "invoice.pdf",
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        },
+        jsPDF: {
+          unit: "in",
+          format: "a4",
+          orientation: "portrait",
+        },
       };
 
-      await html2pdf().set(opt).from(invoiceBox).save();
-    } catch (err) {
-      console.error("PDF generation failed", err);
-      alert("Something went wrong while generating the PDF");
-    } finally {
-      loader.style.display = "none";
-    }
+      html2pdf()
+        .set(opt)
+        .from(invoiceBox)
+        .save()
+        .then(() => {
+          downloadBtn.disabled = false;
+          downloadBtn.innerHTML = originalButtonContent;
+        })
+        .catch((error) => {
+          console.error("Error generating PDF:", error);
+          alert("Failed to generate PDF. Please try again.");
+          downloadBtn.disabled = false;
+          downloadBtn.innerHTML = originalButtonContent;
+        });
+    }, 300);
   });
+}
