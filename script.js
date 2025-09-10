@@ -13,6 +13,7 @@ function getThemeElements() {
     moonIcon: document.querySelector(".moon-icon"),
     sunIcon: document.querySelector(".sun-icon"),
     body: document.body,
+    logo: document.getElementById("theme-logo"),
   };
 }
 
@@ -22,21 +23,28 @@ function toggleThemeIcons(moonIcon, sunIcon, isDark) {
   sunIcon.style.display = isDark ? "block" : "none";
 }
 
+// Updates logo depending on the theme.
+function updateLogo(isDark, logo) {
+  if (!logo) return;
+  logo.src = isDark ? "gilogo.png" : "gil.png";
+}
+
 function applySavedTheme() {
   // Retrieve the theme from local storage. Default is "light".
   const savedTheme =
     (window.localStorage && window.localStorage.getItem("theme")) || "light";
-  const { themeToggleBtn, moonIcon, sunIcon, body } = getThemeElements();
+  const { themeToggleBtn, moonIcon, sunIcon, body, logo } = getThemeElements();
 
   if (!themeToggleBtn || !moonIcon || !sunIcon || !body) return;
 
   const isDark = savedTheme === "dark";
   body.classList.toggle("dark-theme", isDark);
   toggleThemeIcons(moonIcon, sunIcon, isDark);
+  updateLogo(logo, isDark);
 }
 
 function initializeEventListeners() {
-  const { themeToggleBtn, moonIcon, sunIcon, body } = getThemeElements();
+  const { themeToggleBtn, moonIcon, sunIcon, body, logo } = getThemeElements();
 
   // Attach click listener to the theme toggle button.
   if (themeToggleBtn && moonIcon && sunIcon && body) {
@@ -50,6 +58,7 @@ function initializeEventListeners() {
         console.warn("Failed to save theme preference:", e);
       }
       toggleThemeIcons(moonIcon, sunIcon, isDark);
+      updateLogo(isDark, logo);
     });
   }
 
