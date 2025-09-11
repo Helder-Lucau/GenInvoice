@@ -24,7 +24,7 @@ function toggleThemeIcons(moonIcon, sunIcon, isDark) {
 }
 
 // Updates logo depending on the theme.
-function updateLogo(isDark, logo) {
+function updateLogo(logo, isDark) {
   if (!logo) return;
   logo.src = isDark ? "gilogo.png" : "gil.png";
 }
@@ -58,7 +58,7 @@ function initializeEventListeners() {
         console.warn("Failed to save theme preference:", e);
       }
       toggleThemeIcons(moonIcon, sunIcon, isDark);
-      updateLogo(isDark, logo);
+      updateLogo(logo, isDark);
     });
   }
 
