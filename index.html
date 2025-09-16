@@ -18,7 +18,7 @@
 ========================= -->
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="favicon/favicon.ico" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="GenInvoice" />
     <link rel="manifest" href="/site.webmanifest" />
@@ -33,7 +33,12 @@
           <a href="index.html">Home</a>
           <a href="invoice.html">Invoice</a>
         </nav>
-        <button id="theme-toggle" class="theme-toggle-btn">
+        <button
+          id="theme-toggle"
+          class="theme-toggle-btn"
+          aria-label="Toggle dark mode"
+          aria-pressed="false"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"

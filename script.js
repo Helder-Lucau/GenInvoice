@@ -59,6 +59,9 @@ function initializeEventListeners() {
       }
       toggleThemeIcons(moonIcon, sunIcon, isDark);
       updateLogo(logo, isDark);
+
+      // Update aria-pressed state for accessibility
+      themeToggleBtn.setAttribute("aria-pressed", String(isDark));
     });
   }
 
